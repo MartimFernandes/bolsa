@@ -1,17 +1,17 @@
 #!/bin/bash
 test -z "$1" && exit 1
 Color='\033[0;33m'
-test1=$(curl -ks --connect-timeout 2e-1 --max-time 3e-1 --retry 20 --retry-delay 0 --retry-max-time 5 "https://bvmf.bmfbovespa.com.br/cotacoes2000/FormConsultaCotacoes.asp?strListaCodigos=$1" -H "Accept: application/xml")
-test2=$(echo "$test1" | grep -o '.\{0,0\}Oscilacao=.\{0,7\}')
-test3=$(echo "$test1" | grep -o '.\{0,0\}Ultimo=.\{0,9\}')
+test1=$(curl --connect-timeout 5 --max-time 5 --retry 5 --retry-delay 0 --retry-max-time 10 -ks "https://cotacao.b3.com.br/mds/api/v1/InstrumentQuotation/$1" -H "Accept: application/json" | jq)
+test2=$(echo "$test1" | jq '.Trad[0].scty.SctyQtn.prcFlcn')
+test3=$(echo "$test1" | jq '.Trad[0].scty.SctyQtn.curPrc')
 printf "\n"
 printf ${Color} 
 printf $1
 printf ": "
-echo $test2 | grep -Eo '[+-]?[0-9]+([,][0-9]+)?' | tr -d '\n'
+echo $test2 | tr -d '\n'
 printf "%%"
 printf "     "
 printf "R$ "
-echo $test3 | grep -Eo '[+-]?[0-9]+([,][0-9]+)?' | tr -d '\n'
+echo $test3 | tr -d '\n'
 printf "\n"
 printf "\n"
